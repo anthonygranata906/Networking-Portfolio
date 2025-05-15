@@ -1,0 +1,63 @@
+Creating BGP process:
+
+```
+Router bgp <AS>
+neighbor <peer ip> remote-as <Local ASN #>
+neighbor <peer ip> soft-reconfiguration inbound  
+network <whole network ip of local> mask <255.255.255.0>
+```
+
+
+	soft-reconfiguration inbound  (configures seperate cache that stores incoming advertisements from ISP prior to filtering)
+
+
+Create BGP process:
+		Router(config)# router bgp <65501>
+
+	Add networks to BGP table:
+		Router(config-router)# network <10.1.2.0> mask <255.255.255.0>
+		Router(config-router)#network <10.0.0.0> mask <255.0.0.0>
+
+
+Add peers to BGP:
+
+```
+neighbor <10.1.2.78> remote-as <65505>
+neighbor <10.3.5.2> remote-as <65501>
+```
+
+	Redistribute OSPF into BGP
+		Router(config-router)# redistribute ospf <175> (OSPF PID)
+
+!
+!rtrIL BGP Configs
+!
+router bgp 1xx   (This number is assigned to you)
+neighbor 63.2.xx.17 remote-as 7922  (ISP's IP)
+neighbor 63.2.xx.17 soft-reconfiguration inbound  (configures seperate cache that stores incoming advertisements from ISP prior to filtering)
+network 10.2.xx.0 mask 255.255.255.0
+
+
+Null route (how to ensure route is in the routing table)
+
+```
+ip route 10.2.xx.0 255.255.255.0 null0
+```
+
+Verification
+
+show ip bgp neighbor [x.x.x.x] received-routes
+
+must have "soft-reconfiguration inbound" set for peer
+		this command stores all unfiltered routes from neighbor in seperate database
+
+To view routes being sent to neighbor
+		show ip bgp neighbor [x.x.x.x] advertised-routes
+	
+show ip bgp         *important*
+show ip bgp neighbors
+show ip bgp summary
+show run | sec bgp
+show ip bgp neighbor <neighbor ip> advertised-routes
+show ip bgp neighbor <neighbor ip> received-routes*** (needs soft reconfigured route enabled)
+clear ip bgp * soft  (basically unplugging and plugging back in. try not to use.)
